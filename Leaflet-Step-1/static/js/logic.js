@@ -2,8 +2,6 @@
 // URL from USGS GeoJSON Feed page for All Earthquakes from past 7 days.
     // https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson
 
-
-
 // Store our API endpoint inside queryUrl
 
 var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
@@ -15,21 +13,47 @@ d3.json(queryUrl).then(function(data) {
   console.log(data)
 });
 
-
+// Set Colors for earthquakes magnitude
+function getColor(mag) {
+  if (mag >= 5) {
+    return "rgb(240, 107, 107)"
+  } else {
+    if (mag > 4) {
+      return "rgb(240, 167, 107)"
+    } else { 
+      if (mag > 3) {
+        return "rgb(243, 186, 77)"
+      } else {
+        if (mag > 2) {
+          return "rgb(243, 219, 77)"
+        } else {
+          if (mag > 1) {
+            return "rgb(226, 243, 77)"
+          } else {
+            return "rgb(183, 243, 77)"
+        }}}}}};
 
 function createFeatures(earthquakeData) {
-
   // Define a function we want to run once for each feature in the features array
   // Give each feature a popup describing the place and time of the earthquake
   function onEachFeature(feature, layer) {
-    layer.bindPopup("<h3>" + feature.properties.place +
-      "</h3><hr><p>" + new Date(feature.properties.time) + "</p>" +
-      "</h3><hr><p>Magnitude: " + feature.properties.mag + "</p>");
+    layer.bindPopup(`<h3 style="font-weight: bold;">${feature.properties.place}</h3> <hr>
+    <p>${new Date(feature.properties.time)}</p>
+    <p>Magnitude: ${feature.properties.mag}</p>
+    <a href="${feature.properties.url}" target="_blank">More info</a>`);
   }
 
   // Create a GeoJSON layer containing the features array on the earthquakeData object
+  // Create circle markers for each data point to reflect magnitude in size and colour.
   // Run the onEachFeature function once for each piece of data in the array
   var earthquakes = L.geoJSON(earthquakeData, {
+    pointToLayer: function(feature, latlng) {
+      return new L.CircleMarker(latlng, {
+        radius: feature.properties.mag*2,
+        fillOpacity: 1,
+        color: getColor(feature.properties.mag)
+      })
+    },
     onEachFeature: onEachFeature
   });
 
@@ -39,13 +63,13 @@ function createFeatures(earthquakeData) {
 
 function createMap(earthquakes) {
 
-  // Define streetmap and darkmap layers
-  var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+  // Define satellite map and darkmap layers
+  var satmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
     tileSize: 512,
     maxZoom: 18,
     zoomOffset: -1,
-    id: "mapbox/streets-v11",
+    id: "mapbox/satellite-v9",
     accessToken: API_KEY
   });
 
@@ -58,7 +82,7 @@ function createMap(earthquakes) {
 
   // Define a baseMaps object to hold our base layers
   var baseMaps = {
-    "Street Map": streetmap,
+    "Satellite Map": satmap,
     "Dark Map": darkmap
   };
 
@@ -73,8 +97,25 @@ function createMap(earthquakes) {
       3, 27
     ],
     zoom: 2,
-    layers: [streetmap, earthquakes]
+    layers: [satmap, earthquakes]
   });
+
+  // The legend
+  var legend = L.control({
+    position: 'bottomright'
+  });
+
+      /* Adding on the legend based off the color scheme we have */
+      legend.onAdd = function (color) {
+          var div = L.DomUtil.create('div', 'info legend');
+          var levels = ['5+', '4 to 5', '3 to 4', '2 to 3', '1 to 2', '0 to 1'];
+          var colors = ["rgb(240, 107, 107)", "rgb(240, 167, 107)", "rgb(243, 186, 77)", "rgb(243, 219, 77)", "rgb(226, 243, 77)", "rgb(183, 243, 77)"]
+          for (var i = 0; i < levels.length; i++) {
+              div.innerHTML += '<h3 style="background:' + colors[i] + '">' + levels[i];
+          }
+          return div;
+      }
+      legend.addTo(myMap);
 
   // Create a layer control
   // Pass in our baseMaps and overlayMaps
