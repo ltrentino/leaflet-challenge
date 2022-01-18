@@ -6,6 +6,11 @@
 
 var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
+
+// Plates data from JSON file downloaded from https://github.com/fraxen/tectonicplates/tree/master/GeoJSON
+
+
+
 // Perform a GET request to the query URL
 d3.json(queryUrl).then(function(data) {
   // Once we get a response, send the data.features object to the createFeatures function
@@ -14,24 +19,37 @@ d3.json(queryUrl).then(function(data) {
 });
 
 // Set Colors for earthquakes magnitude
-function getColor(mag) {
-  if (mag >= 5) {
-    return "rgb(240, 107, 107)"
-  } else {
-    if (mag > 4) {
-      return "rgb(240, 167, 107)"
-    } else { 
-      if (mag > 3) {
-        return "rgb(243, 186, 77)"
-      } else {
-        if (mag > 2) {
-          return "rgb(243, 219, 77)"
-        } else {
-          if (mag > 1) {
-            return "rgb(226, 243, 77)"
-          } else {
-            return "rgb(183, 243, 77)"
-        }}}}}};
+
+function getColor(m) {
+
+  var colors = ['lightgreen','yellowgreen','gold','orange','lightsalmon','tomato'];
+
+  return  m > 5? colors[5]:
+          m > 4? colors[4]:
+          m > 3? colors[3]:
+          m > 2? colors[2]:
+          m > 1? colors[1]:
+                 colors[0];
+};
+
+// function getColor(mag) {
+//   if (mag >= 5) {
+//     return "rgb(240, 107, 107)"
+//   } else {
+//     if (mag > 4) {
+//       return "rgb(240, 167, 107)"
+//     } else { 
+//       if (mag > 3) {
+//         return "rgb(243, 186, 77)"
+//       } else {
+//         if (mag > 2) {
+//           return "rgb(243, 219, 77)"
+//         } else {
+//           if (mag > 1) {
+//             return "rgb(226, 243, 77)"
+//           } else {
+//             return "rgb(183, 243, 77)"
+//         }}}}}};
 
 function createFeatures(earthquakeData) {
   // Define a function we want to run once for each feature in the features array
@@ -80,6 +98,23 @@ function createMap(earthquakes) {
     accessToken: API_KEY
   });
 
+
+  // getting tectonic plates data - can't make it appear on the html file :(
+  var tectonicPlates = new L.LayerGroup();
+  d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_plates.json", function (data) {
+    console.log(data),
+    L.geoJSON(data, {
+        color: 'red',
+        weight: 2,
+      })
+      .addTo(tectonicPlates);
+      tectonicPlates.addTo(myMap)
+  });  
+
+
+
+
+
   // Define a baseMaps object to hold our base layers
   var baseMaps = {
     "Satellite Map": satmap,
@@ -88,7 +123,8 @@ function createMap(earthquakes) {
 
   // Create overlay object to hold our overlay layer
   var overlayMaps = {
-    Earthquakes: earthquakes
+    "Earthquakes": earthquakes,
+    "Tectonic Plates" : tectonicPlates
   };
 
   // Create our map, giving it the streetmap and earthquakes layers to display on load
@@ -96,11 +132,19 @@ function createMap(earthquakes) {
     center: [
       3, 27
     ],
-    zoom: 2,
-    layers: [satmap, earthquakes]
+    zoom: 3,
+    layers: [satmap, earthquakes, tectonicPlates]
   });
 
+
+  // Add the layer control to the map
+  L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(myMap);
+
+
+
+
   // The legend
+
   var legend = L.control({
     position: 'bottomright'
   });
@@ -114,13 +158,8 @@ function createMap(earthquakes) {
               div.innerHTML += '<h3 style="background:' + colors[i] + '">' + levels[i];
           }
           return div;
-      }
+      };
       legend.addTo(myMap);
 
-  // Create a layer control
-  // Pass in our baseMaps and overlayMaps
-  // Add the layer control to the map
-  L.control.layers(baseMaps, overlayMaps, {
-    collapsed: false
-  }).addTo(myMap);
-}
+
+};
