@@ -48,7 +48,7 @@ var myMap = L.map("map", {
     3, 27
   ],
   zoom: 3,
-  layers: [darkmap, earthquakes_week]
+  layers: [darkmap]
 });
 
 
@@ -94,7 +94,7 @@ d3.json(earthquakesURL_week, function(data) {
     }
   }).addTo(earthquakes_week);
 
-  earthquakes_week.addTo(myMap);
+   earthquakes_week.addTo(myMap);
 
 //////////////////////////////////////////////////
 
@@ -136,7 +136,7 @@ d3.json(earthquakesURL_week, function(data) {
       }
     }).addTo(earthquakes_month);
   
-    earthquakes_month.addTo(myMap);
+    // earthquakes_month.addTo(myMap);
 
 
   });
@@ -154,7 +154,7 @@ d3.json(earthquakesURL_week, function(data) {
       color: "lightblue",
       weight: 1
     }).addTo(tectonicplates);
-    tectonicplates.addTo(myMap);
+    // tectonicplates.addTo(myMap);
   });
 
     
@@ -172,23 +172,6 @@ d3.json(earthquakesURL_week, function(data) {
       return div;
   };
   legend.addTo(myMap);
-
-
-  // Info bottomleft
-  var info = L.control({ position: "bottomleft" });
-  info.onAdd = function (map) {
-      var div = L.DomUtil.create("div", "info");
-      div.innerHTML += "<h4>Earthquake Magnitude Scale</h4>";
-      div.innerHTML += '<i style="background: tomato"></i><span>> 8  _____Great earthquake. Can totally destroy communities near the epicenter.</span><br>';
-      div.innerHTML += '<i style="background: lightsalmon"></i><span>7 to 7.9 __Major earthquake. Serious damage.</span><br>';
-      div.innerHTML += '<i style="background: orange"></i><span>6.1 to 6.9 _May cause a lot of damage in very populated areas.</span><br>';
-      div.innerHTML += '<i style="background: gold"></i><span>5.5 to 6.0 _Slight damage to buildings and other structures.</span><br>';
-      div.innerHTML += '<i style="background: yellowgreen"></i><span>2.5 to 5.4 _Often felt, but only causes minor damage.</span><br>';
-      div.innerHTML += '<i style="background: lightgreen"></i><span>< 2.5 ____Usually not felt, but can be recorded by seismograph.	</span><br>';
-      return div;
-  };
-  info.addTo(myMap);
-
 
 
 });

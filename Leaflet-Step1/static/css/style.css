@@ -11,23 +11,23 @@ html {
 
 /* Set Legend Style */
 .legend {
-  padding: 6px 8px;
-  font: 10px Arial, Helvetica, sans-serif;
+  padding: 4px;
+  font: 9px Arial, Helvetica, sans-serif;
   background: white;
   background: rgba(255, 255, 255, 0.8);
-  line-height: 24px;
+  line-height: 19px;
   color: #333333;
 }
 .legend h4 {
   text-align: center;
-  font-size: 16px;
-  margin: 2px 12px 8px;
+  font-size: 12px;
+  margin: 2px 2px 2px;
   color: #333333;
 }
 
 .legend i {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   float: left;
   margin: 0 8px 0 0;
   opacity: 0.7;
